@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Форма заявки</title>
+      <style>
+         .form-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+         }
+         .form-section {
+            flex: 1;
+            min-width: 300px;
+         }
+         label {
+            display: block;
+            margin: 10px 0 5px;
+         }
+         input,
+         textarea,
+         select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+         }
+      </style>
+   </head>
+   <body>
+      <form id="jobForm" class="form-container">
+         <div class="form-section">
+            <h3>Детали клиента</h3>
+            <label>Имя: <input type="text" name="firstName" required /></label>
+            <label>Фамилия: <input type="text" name="lastName" required /></label>
+            <label>Телефон: <input type="tel" name="phone" required /></label>
+            <label>Email: <input type="email" name="email" /></label>
+         </div>
+         <div class="form-section">
+            <h3>Местоположение услуги</h3>
+            <label>Адрес: <input type="text" name="address" required /></label>
+            <label>Город: <input type="text" name="city" required /></label>
+            <label>Штат: <input type="text" name="state" required /></label>
+            <label>Почтовый индекс: <input type="text" name="zip" required /></label>
+            <label>Область: <input type="text" name="area" /></label>
+         </div>
+         <div class="form-section">
+            <h3>Детали работы</h3>
+            <label>Тип работы: <input type="text" name="jobType" required /></label>
+            <label>Источник работы: <input type="text" name="jobSource" required /></label>
+            <label>Описание работы: <textarea name="jobDescription"></textarea></label>
+         </div>
+         <div class="form-section">
+            <h3>Расписание</h3>
+            <label>Дата начала: <input type="date" name="startDate" required /></label>
+            <label>Время начала: <input type="time" name="startTime" required /></label>
+            <label>Время окончания: <input type="time" name="endTime" required /></label>
+            <label
+               >Тестовый выбор:
+               <select name="testSelect">
+                  <option value="option1">Опция 1</option>
+                  <option value="option2">Опция 2</option>
+               </select>
+            </label>
+         </div>
+         <button type="submit">Отправить</button>
+      </form>
+
+      <script>
+         document.getElementById('jobForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+               const response = await fetch(
+                  'https://api.pipedrive.com/v1/deals?api_token=f1766d23b9f885a238b6195c3baa3f18a3f98f2f',
+                  {
+                     method: 'POST',
+                     headers: {
+                        'Content-Type': 'application/json',
+                     },
+                     body: JSON.stringify({
+                        title: `${data.firstName} ${data.lastName} - ${data.jobType}`,
+                        person_id: null,
+                        org_id: null,
+                        value: 0,
+                        currency: 'USD',
+                        user_id: null,
+                        status: 'open',
+                        custom_fields: {
+                           address: data.address,
+                           city: data.city,
+                           state: data.state,
+                           zip: data.zip,
+                           area: data.area,
+                           jobDescription: data.jobDescription,
+                           startDate: data.startDate,
+                           startTime: data.startTime,
+                           endTime: data.endTime,
+                           testSelect: data.testSelect,
+                        },
+                     }),
+                  },
+               );
+
+               if (response.ok) {
+                  alert('Данные успешно отправлены в Pipedrive');
+               } else {
+                  alert('Произошла ошибка при отправке данных');
+               }
+            } catch (error) {
+               console.error('Ошибка:', error);
+               alert('Произошла ошибка при отправке данных');
+            }
+         });
+      </script>
+   </body>
+</html>
